@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["wanna chat", "wanna call"], 
   },
+  selfIntroduction: {
+    type: String,
+    trim: true,
+  },
+  imageUrl:{type: String},
 });
 
 const User = mongoose.model("User", userSchema);
