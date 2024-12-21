@@ -20,3 +20,29 @@ try {
   res.status(500).json({message: "Error creating user"})
 }
 }
+
+export const updateCurrentUser: RequestHandler =async (req:Request, res: Response): Promise<void>  => {
+  try {
+    const {name, gender, city, country, learningLanguage, fluencyLevel, motivation,selfIntroduction} = req.body
+    const user = await User.findById(req.userId)
+
+    if(!user){
+      res.status(404).json({message: "User not found"})
+      return;
+    }
+
+    user.name = name;
+    user.gender = gender;
+    user.city = city;
+    user.country = country;
+    user.learningLanguage = learningLanguage;
+    user.fluencyLevel = fluencyLevel;
+    user.motivation = motivation;
+    user.selfIntroduction = selfIntroduction;
+
+    res.send(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message: "Error updating user"})
+  }
+}
