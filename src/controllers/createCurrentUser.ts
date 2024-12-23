@@ -1,6 +1,20 @@
 import { Request, RequestHandler, Response } from "express";
 import User from "../model/user";
 
+export const getCurrentUser: RequestHandler =async (req:Request, res: Response): Promise<void> => {
+  try {
+    const currentUser = await User.findOne({_id: req.userId})
+    if (!currentUser) {
+      res.status(404).json({message: "User not found"})
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message: "Something went wrong"})
+    return;
+  }
+}
+
 export const createCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     const { auth0Id } = req.body;

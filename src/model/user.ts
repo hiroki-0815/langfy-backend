@@ -30,8 +30,7 @@ const userSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    required: true,
-    min: 1, // Ensures age is at least 1
+    min: 1, 
   },
   learningLanguage: {
     type: String,
