@@ -4,21 +4,21 @@ const userSchema = new mongoose.Schema({
   auth0Id: {
     type: String,
     required: true,
-    unique: true, 
+    unique: true,
     sparse: true,
   },
   name: {
     type: String,
-    trim: true, 
+    trim: true,
   },
   gender: {
     type: String,
-    enum: ["male", "female"], 
+    enum: ["male", "female"],
   },
   email: {
     type: String,
     required: true,
-    unique: true, 
+    unique: true,
   },
   city: {
     type: String,
@@ -28,22 +28,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  age: {
+    type: Number,
+    required: true,
+    min: 1, // Ensures age is at least 1
+  },
   learningLanguage: {
     type: String,
   },
   fluencyLevel: {
     type: String,
-    enum: ["beginner", "intermediate", "advanced"], 
+    enum: ["beginner", "intermediate", "advanced"],
   },
   motivation: {
     type: String,
-    enum: ["wanna chat", "wanna call"], 
+    enum: ["wanna chat", "wanna call"],
   },
   selfIntroduction: {
     type: String,
     trim: true,
   },
-  // imageUrl:{type: String},
+  // imageUrl: { type: String },
 });
 
 const User = mongoose.model("User", userSchema);
