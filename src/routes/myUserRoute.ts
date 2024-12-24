@@ -16,6 +16,13 @@ const upload = multer({
 
 router.get('/',jwtCheck,jwtParse, getCurrentUser)
 router.post("/",jwtCheck, createCurrentUser)
-router.put("/",upload.single("imageFile"), validateMyUserRequest,jwtCheck, jwtParse, updateCurrentUser)
+router.put(
+  "/",
+  jwtCheck,
+  jwtParse,
+  upload.single("imageFile"),
+  validateMyUserRequest,
+  updateCurrentUser
+);
 
 export default router
