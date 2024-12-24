@@ -18,14 +18,10 @@ cloudinary.config({
 })
 
 const app = express();
-app.use(express.json())
+
 app.use(cors())
-
-app.get("/health", async (req: Request, res: Response) => {
-  res.send({ message: "health OK!" });
-});
-
 app.use("/api/my/user", myUserRoute)
+app.use(express.json())
 
 app.listen(PORT, () => {
   console.log(`Server started on port: ${PORT}`);
