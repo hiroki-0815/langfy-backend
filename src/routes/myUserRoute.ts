@@ -22,7 +22,7 @@ router.put(
   jwtParse,
   upload.single("imageFile"),
   validateMyUserRequest,
-  updateCurrentUser
+  updateCurrentUser,
 );
 
 export default router

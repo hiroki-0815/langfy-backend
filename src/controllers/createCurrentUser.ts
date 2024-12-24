@@ -38,8 +38,6 @@ export const createCurrentUser: RequestHandler = async (req: Request, res: Respo
 };
 
 export const updateCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-  console.log("req.file:", req.file);
-  console.log("req.body:", req.body);
   try {
     const {
       name,
