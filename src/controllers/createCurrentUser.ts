@@ -38,6 +38,8 @@ export const createCurrentUser: RequestHandler = async (req: Request, res: Respo
 };
 
 export const updateCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+  console.log("req.file:", req.file);
+  console.log("req.body:", req.body);
   try {
     const {
       name,
@@ -51,12 +53,13 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       selfIntroduction,
     } = req.body;
 
-    const image = req.file as Express.Multer.File;
-    const base64Image = Buffer.from(image.buffer).toString("base64");
-    const dataURI = `data:${image.mimetype};base64,${base64Image}`
-
-    const uploadResponse = await cloudinary.v2.uploader.upload(dataURI)
-
+    let uploadResponse;
+    if (req.file) {
+      const image = req.file as Express.Multer.File;
+      const base64Image = Buffer.from(image.buffer).toString("base64");
+      const dataURI = `data:${image.mimetype};base64,${base64Image}`;
+      uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
+    }
 
     const user = await User.findById(req.userId);
     
@@ -64,8 +67,11 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       res.status(404).json({ message: "User not found" });
       return;
     }
-    
-    user.imageUrl = uploadResponse.url;
+
+    if (uploadResponse) {
+      user.imageUrl = uploadResponse.url;
+    }
+  
     user.name = name;
     user.gender = gender;
     user.city = city;
