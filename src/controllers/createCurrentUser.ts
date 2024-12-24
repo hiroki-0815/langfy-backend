@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 import User from "../model/user";
+import cloudinary from "cloudinary"
 
 export const getCurrentUser: RequestHandler =async (req:Request, res: Response): Promise<void> => {
   try {
@@ -50,13 +51,21 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       selfIntroduction,
     } = req.body;
 
-    const user = await User.findById(req.userId);
+    const image = req.file as Express.Multer.File;
+    const base64Image = Buffer.from(image.buffer).toString("base64");
+    const dataURI = `data:${image.mimetype};base64,${base64Image}`
 
+    const uploadResponse = await cloudinary.v2.uploader.upload(dataURI)
+
+
+    const user = await User.findById(req.userId);
+    
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
     }
-
+    
+    user.imageUrl = uploadResponse.url;
     user.name = name;
     user.gender = gender;
     user.city = city;

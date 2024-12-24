@@ -2,11 +2,20 @@ import express from "express"
 import { createCurrentUser, getCurrentUser, updateCurrentUser } from "../controllers/createCurrentUser";
 import { jwtCheck, jwtParse } from "../middleware/auth";
 import { validateMyUserRequest } from "../middleware/validation";
+import multer from "multer";
 
 const router = express.Router();
 
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5mb
+  },
+});
+
 router.get('/',jwtCheck,jwtParse, getCurrentUser)
 router.post("/",jwtCheck, createCurrentUser)
-router.put("/",jwtCheck, jwtParse, validateMyUserRequest, updateCurrentUser)
+router.put("/",upload.single("imageFile"), validateMyUserRequest,jwtCheck, jwtParse, updateCurrentUser)
 
 export default router
