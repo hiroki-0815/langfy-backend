@@ -1,21 +1,21 @@
 import { Request, RequestHandler, Response } from "express";
 import User from "../model/user";
-import cloudinary from "cloudinary"
+import cloudinary from "cloudinary";
 
-export const getCurrentUser: RequestHandler =async (req:Request, res: Response): Promise<void> => {
+export const getCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
-    const currentUser = await User.findOne({_id: req.userId})
+    const currentUser = await User.findOne({ _id: req.userId });
     if (!currentUser) {
-      res.status(404).json({message: "User not found"})
+      res.status(404).json({ message: "User not found" });
       return;
     }
-    res.json(currentUser)
+    res.json(currentUser);
   } catch (error) {
     console.log(error);
-    res.status(500).json({message: "Something went wrong"})
+    res.status(500).json({ message: "Something went wrong" });
     return;
   }
-}
+};
 
 export const createCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -44,6 +44,7 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       gender,
       city,
       country,
+      nationality,
       age,
       learningLanguage,
       fluencyLevel,
@@ -60,7 +61,7 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
     }
 
     const user = await User.findById(req.userId);
-    
+
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -69,11 +70,12 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
     if (uploadResponse) {
       user.imageUrl = uploadResponse.url;
     }
-  
+
     user.name = name;
     user.gender = gender;
     user.city = city;
     user.country = country;
+    user.nationality = nationality;
     user.age = age;
     user.learningLanguage = learningLanguage;
     user.fluencyLevel = fluencyLevel;
