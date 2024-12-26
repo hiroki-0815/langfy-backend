@@ -16,6 +16,7 @@ export const validateMyUserRequest = [
   body("city").isString().notEmpty().withMessage("City must be a string"),
   body("country").isString().notEmpty().withMessage("Country must be a string"),
   body("nationality").isString().notEmpty().withMessage("Nationality must be a string"),
+  body("nativeLanguage").isString().notEmpty().withMessage("Native Language must be a string"),
   body("age")
   .trim()
   .toInt()

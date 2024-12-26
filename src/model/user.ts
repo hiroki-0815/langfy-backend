@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  nativeLanguage: {
+    type: String,
+    trim: true,
+  },
   age: {
     type: Number,
     min: 1, 
