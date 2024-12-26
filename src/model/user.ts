@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { NATIONALITIES, LANGUAGES } from "./enums/enum"
 
 const userSchema = new mongoose.Schema({
   auth0Id: {
@@ -30,10 +31,12 @@ const userSchema = new mongoose.Schema({
   },
   nationality: {
     type: String,
+    enum: NATIONALITIES,
     trim: true,
   },
   nativeLanguage: {
     type: String,
+    enum: LANGUAGES,
     trim: true,
   },
   age: {
@@ -42,6 +45,7 @@ const userSchema = new mongoose.Schema({
   },
   learningLanguage: {
     type: String,
+    enum: LANGUAGES,
   },
   fluencyLevel: {
     type: String,
