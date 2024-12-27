@@ -1,4 +1,4 @@
-export const NATIONALITIES = [
+export const ORIGIN_COUNTRIES = [
   "Japan",
   "The United States",
   "Canada",
@@ -17,4 +17,20 @@ export const LANGUAGES = [
   "Chinese",
   "Spanish",
   "French",
+];
+
+export const GENDERS = [
+  "male",
+  "female",
+];
+
+export const FLUENCY_LEVELS = [
+  "beginner",
+  "intermediate",
+  "advanced",
+];
+
+export const MOTIVATIONS = [
+  "wanna chat",
+  "wanna call",
 ];

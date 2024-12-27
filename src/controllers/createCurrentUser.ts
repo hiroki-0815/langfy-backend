@@ -44,7 +44,7 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       gender,
       city,
       country,
-      nationality,
+      originCountry,
       nativeLanguage,
       age,
       learningLanguage,
@@ -85,7 +85,7 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
     user.gender = gender;
     user.city = city;
     user.country = country;
-    user.nationality = nationality;
+    user.originCountry = originCountry;
     user.nativeLanguage = nativeLanguage;
     user.age = age;
     user.learningLanguage = learningLanguage;

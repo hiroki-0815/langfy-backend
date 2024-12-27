@@ -3,7 +3,7 @@ import User from "../model/user";
 
 export const getAllUsers: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
-    const page = Math.max(parseInt(req.query.page as string) || 1, 1); // Ensure positive page number
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1); 
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
 

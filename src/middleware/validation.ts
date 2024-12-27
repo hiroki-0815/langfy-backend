@@ -1,8 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
-import { NATIONALITIES, LANGUAGES } from "../model/enums/enum";
+import {
+  ORIGIN_COUNTRIES,
+  LANGUAGES,
+  GENDERS,
+  FLUENCY_LEVELS,
+  MOTIVATIONS,
+} from "../model/enums/enum";
 
-const handleValidationErrors = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const handleValidationErrors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
@@ -13,25 +23,40 @@ const handleValidationErrors = async (req: Request, res: Response, next: NextFun
 
 export const validateMyUserRequest = [
   body("name").isString().notEmpty().withMessage("Name must be a string"),
-  body("gender").isString().isIn(["male", "female"]).withMessage("Gender must be 'male' or 'female'"),
+  body("gender")
+    .isString()
+    .isIn(GENDERS)
+    .withMessage("Gender must be one of the predefined values"),
   body("city").isString().notEmpty().withMessage("City must be a string"),
   body("country").isString().notEmpty().withMessage("Country must be a string"),
-  body("nationality").isString().isIn(NATIONALITIES).withMessage("Invalid nationality"),
-  body("nativeLanguage").isString().isIn(LANGUAGES).withMessage("Invalid native language"),
+  body("originCountry")
+    .isString()
+    .isIn(ORIGIN_COUNTRIES)
+    .withMessage("Invalid origin country"),
+  body("nativeLanguage")
+    .isString()
+    .isIn(LANGUAGES)
+    .withMessage("Invalid native language"),
   body("age")
     .trim()
     .toInt()
     .isInt({ min: 1 })
     .withMessage("Age must be a positive integer"),
-  body("learningLanguage").isString().isIn(LANGUAGES).withMessage("Invalid learning language"),
+  body("learningLanguage")
+    .isString()
+    .isIn(LANGUAGES)
+    .withMessage("Invalid learning language"),
   body("fluencyLevel")
     .isString()
-    .isIn(["beginner", "intermediate", "advanced"])
-    .withMessage("Fluency level must be 'beginner', 'intermediate', or 'advanced'"),
+    .isIn(FLUENCY_LEVELS)
+    .withMessage("Fluency level must be one of the predefined values"),
   body("motivation")
     .isString()
-    .isIn(["wanna chat", "wanna call"])
-    .withMessage("Motivation must be 'wanna chat' or 'wanna call'"),
-  body("selfIntroduction").isString().notEmpty().withMessage("Self introduction must be a string"),
+    .isIn(MOTIVATIONS)
+    .withMessage("Motivation must be one of the predefined values"),
+  body("selfIntroduction")
+    .isString()
+    .notEmpty()
+    .withMessage("Self introduction must be a string"),
   handleValidationErrors,
 ];

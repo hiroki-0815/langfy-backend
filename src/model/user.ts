@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { NATIONALITIES, LANGUAGES } from "./enums/enum"
+import { ORIGIN_COUNTRIES, LANGUAGES, GENDERS, FLUENCY_LEVELS, MOTIVATIONS } from "./enums/enum";
 
 const userSchema = new mongoose.Schema({
   auth0Id: {
@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: ["male", "female"],
+    enum: GENDERS,
   },
   email: {
     type: String,
@@ -29,9 +29,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  nationality: {
+  originCountry: {
     type: String,
-    enum: NATIONALITIES,
+    enum: ORIGIN_COUNTRIES,
     trim: true,
   },
   nativeLanguage: {
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    min: 1, 
+    min: 1,
   },
   learningLanguage: {
     type: String,
@@ -49,11 +49,11 @@ const userSchema = new mongoose.Schema({
   },
   fluencyLevel: {
     type: String,
-    enum: ["beginner", "intermediate", "advanced"],
+    enum: FLUENCY_LEVELS,
   },
   motivation: {
     type: String,
-    enum: ["wanna chat", "wanna call"],
+    enum: MOTIVATIONS,
   },
   selfIntroduction: {
     type: String,
