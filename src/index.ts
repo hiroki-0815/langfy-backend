@@ -4,6 +4,7 @@ import "dotenv/config"
 import mongoose from "mongoose";
 import myUserRoute from './routes/myUserRoute'
 import {v2 as cloudinary} from "cloudinary"
+import allUsersRoute from "./routes/allUsersRoute";
 
 const PORT = process.env.PORT || 7001;
 
@@ -27,6 +28,7 @@ app.get('/health', (req:Request, res:Response) => {
 app.use(cors())
 app.use(express.json())
 app.use("/api/my/user", myUserRoute)
+app.use("/api/users", allUsersRoute)
 
 app.listen(PORT, () => {
   console.log(`Server started on port: ${PORT}`);

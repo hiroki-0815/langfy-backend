@@ -58,7 +58,16 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       const image = req.file as Express.Multer.File;
       const base64Image = Buffer.from(image.buffer).toString("base64");
       const dataURI = `data:${image.mimetype};base64,${base64Image}`;
-      uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
+
+      // Add Cloudinary upload with logging
+      try {
+        uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
+        console.log("Cloudinary upload successful:", uploadResponse.url);
+      } catch (uploadError) {
+        console.error("Cloudinary upload failed:", uploadError);
+        res.status(500).json({ message: "Error uploading image" });
+        return;
+      }
     }
 
     const user = await User.findById(req.userId);
@@ -88,7 +97,8 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
 
     res.send(user);
   } catch (error) {
-    console.log(error);
+    console.error("Error updating user:", error);
     res.status(500).json({ message: "Error updating user" });
   }
 };
+
