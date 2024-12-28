@@ -1,11 +1,14 @@
 import { Request, RequestHandler, Response } from "express";
 import User from "../model/user";
 
-export const getAllUsers: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+export const getAllUsers: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const page = Math.max(parseInt(req.query.page as string) || 1, 1);
-    const pageSize = Math.max(parseInt(req.query.pageSize as string) || 10, 1);
-    const skip = (page - 1) * pageSize;
+    const limit = Math.max(parseInt(req.query.limit as string) || 10, 1); 
+    const skip = (page - 1) * limit;
 
     const {
       gender,
@@ -14,8 +17,9 @@ export const getAllUsers: RequestHandler = async (req: Request, res: Response): 
       nativeLanguage,
       fluencyLevel,
       motivation,
-      minAge,
-      maxAge,
+      ageMin,      // Updated to match frontend
+      ageMax,      // Updated to match frontend
+      learningLanguage, 
     } = req.query;
 
     let query: any = {};
@@ -26,17 +30,18 @@ export const getAllUsers: RequestHandler = async (req: Request, res: Response): 
     if (nativeLanguage) query.nativeLanguage = nativeLanguage;
     if (fluencyLevel) query.fluencyLevel = fluencyLevel;
     if (motivation) query.motivation = motivation;
+    if (learningLanguage) query.learningLanguage = learningLanguage;
 
-    if (minAge || maxAge) {
+    if (ageMin || ageMax) {  // Updated to use ageMin and ageMax
       query.age = {};
-      if (minAge) query.age.$gte = parseInt(minAge as string);
-      if (maxAge) query.age.$lte = parseInt(maxAge as string);
+      if (ageMin) query.age.$gte = parseInt(ageMin as string);
+      if (ageMax) query.age.$lte = parseInt(ageMax as string);
     }
 
     const users = await User.find(query)
       .sort({ name: 1 })
       .skip(skip)
-      .limit(pageSize)
+      .limit(limit)
       .lean()
       .exec();
 
@@ -47,8 +52,8 @@ export const getAllUsers: RequestHandler = async (req: Request, res: Response): 
       pagination: {
         total,
         page,
-        pageSize,
-        pages: Math.ceil(total / pageSize),
+        limit, 
+        pages: Math.ceil(total / limit),
       },
     };
 
