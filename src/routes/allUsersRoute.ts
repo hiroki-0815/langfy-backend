@@ -5,6 +5,6 @@ import { getAllUsers } from "../controllers/getAllUsers";
 
 const router = express.Router();
 
-router.get('/', getAllUsers)
+router.get('/',jwtCheck,jwtParse, getAllUsers)
 
 export default router
