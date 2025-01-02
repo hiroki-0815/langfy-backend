@@ -3,7 +3,7 @@ import User from "../model/user";
 import Message from "../model/message";
 import cloudinary from "cloudinary";
 
-export const getUsersForMessageSidebar: RequestHandler =async (req:Request, res:Response) => {
+export const getChatUser: RequestHandler =async (req:Request, res:Response) => {
   try {
     const currentUser = await User.findOne({ _id: req.userId });
 
@@ -31,7 +31,9 @@ export const getUsersForMessageSidebar: RequestHandler =async (req:Request, res:
       }
     })
 
-    const users = await User.find({_id: { $in: Array.from(userIds)}}).select("name imageUrl")
+    const users = await User.find({
+      _id: { $in: Array.from(userIds), $ne: currentUser._id },
+    }).select("name imageUrl");
 
     res.status(200).json(users)
   } catch (error) {
