@@ -5,12 +5,12 @@ import mongoose from "mongoose";
 import myUserRoute from './routes/myUserRoute'
 import {v2 as cloudinary} from "cloudinary"
 import allUsersRoute from "./routes/allUsersRoute";
+import messageRoute from "./routes/messageRoute";
 
 const PORT = process.env.PORT || 7001;
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string).then(()=>{
   console.log("Connected to database");
-  
 })
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -29,6 +29,7 @@ app.use(cors())
 app.use(express.json())
 app.use("/api/my/user", myUserRoute)
 app.use("/api/users", allUsersRoute)
+app.use("/api/message", messageRoute)
 
 app.listen(PORT, () => {
   console.log(`Server started on port: ${PORT}`);
