@@ -1,6 +1,6 @@
 import express from "express"
 import { jwtCheck, jwtParse } from "../middleware/auth";
-import { getChatUser, getMessages, sendMesages } from "../controllers/message.controller";
+import { getChatUser, getMessages, sendMessages} from "../controllers/message.controller";
 import multer from "multer";
 
 const router = express.Router();
@@ -21,6 +21,6 @@ router.post(
 upload.single("imageFile"),
 jwtCheck,
 jwtParse,
-sendMesages)
+sendMessages)
 
 export default router
