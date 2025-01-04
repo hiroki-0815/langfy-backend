@@ -13,6 +13,10 @@ export const getChatUser: RequestHandler =async (req:Request, res:Response) => {
       return;
     }
 
+    const { clickedUserId } = req.query;
+
+    console.log("Received clickedUserId:", clickedUserId);
+
     const messages = await Message.find({
       $or:[
         {senderId: currentUser._id},
@@ -31,6 +35,10 @@ export const getChatUser: RequestHandler =async (req:Request, res:Response) => {
         userIds.add((message.receiverId as any)._id.toString())
       }
     })
+
+    if (clickedUserId && clickedUserId !== currentUser._id.toString()) {
+      userIds.add(clickedUserId as string);
+    }
 
     const users = await User.find({
       _id: { $in: Array.from(userIds), $ne: currentUser._id },
@@ -87,7 +95,6 @@ export const sendMessages: RequestHandler = async (req: Request, res: Response) 
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      // Emit to the receiver's socket
       io.to(receiverSocketId).emit("newMessage", newMessage);
     }
 
