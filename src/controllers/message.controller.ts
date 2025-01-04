@@ -2,6 +2,7 @@ import { RequestHandler, Request, Response } from "express";
 import User from "../model/user";
 import Message from "../model/message";
 import cloudinary from "cloudinary";
+import { getReceiverSocketId, io } from "../lib/socket";
 
 export const getChatUser: RequestHandler =async (req:Request, res:Response) => {
   try {
@@ -63,14 +64,14 @@ export const getMessages =async (req: Request, res: Response) => {
   }
 }
 
-export const sendMesages =async (req: Request, res: Response) => {
+export const sendMessages: RequestHandler = async (req: Request, res: Response) => {
   try {
-    const {text, image} = req.body;
-    const{id: receiverId} = req.params;
-    const senderId = req.userId
+    const { text, image } = req.body;
+    const { id: receiverId } = req.params;
+    const senderId = req.userId;
 
     let imageUrl;
-    if(image){
+    if (image) {
       const uploadResponse = await cloudinary.v2.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
     }
@@ -79,15 +80,20 @@ export const sendMesages =async (req: Request, res: Response) => {
       senderId,
       receiverId,
       text,
-      image: imageUrl
-    })
+      image: imageUrl,
+    });
 
-    await newMessage.save()
+    await newMessage.save();
 
-    res.status(201).json(newMessage)
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      // Emit to the receiver's socket
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    res.status(201).json(newMessage);
   } catch (error) {
     console.log(error);
-    res.status(500).json({message:"Something went wrong"});
-    return;
+    res.status(500).json({ message: "Something went wrong" });
   }
-}
+};
