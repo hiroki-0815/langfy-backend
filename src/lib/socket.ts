@@ -25,6 +25,12 @@ io.on("connection", (socket) => {
     console.log(`UserId ${userId} is mapped to socketId ${socket.id}`);
   });
 
+  socket.on("join-room", (roomId, userId) => {
+    console.log(`a new user ${userId} joined room ${roomId}`);
+    socket.join(roomId)
+    socket.broadcast.to(roomId).emit('user-connected', userId)
+  })
+
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
 
