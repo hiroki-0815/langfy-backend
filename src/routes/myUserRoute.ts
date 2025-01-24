@@ -1,5 +1,5 @@
 import express from "express"
-import { createCurrentUser, getCurrentUser, updateCurrentUser } from "../controllers/createCurrentUser";
+import { createCurrentUser, getCurrentUser, updateCurrentUser } from "../controllers/user.controller";
 import { jwtCheck, jwtParse } from "../middleware/auth";
 import { validateMyUserRequest } from "../middleware/validation";
 import multer from "multer";
