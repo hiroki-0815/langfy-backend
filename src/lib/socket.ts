@@ -30,18 +30,18 @@ io.on("connection", (socket) => {
     socket.join(roomId)
     socket.broadcast.to(roomId).emit('user-connected', userId)
   })
+// =========IGNORE===========
+  // socket.on('user-toggle-audio',(userId, roomId)=>{
+  //   console.log(`a user ${userId} toggle audio`);
+  //   socket.join(roomId)
+  //   socket.broadcast.to(roomId).emit('user-toggle-audio', userId)
+  // })
 
-  socket.on('user-toggle-audio',(userId, roomId)=>{
-    console.log(`a user ${userId} toggle audio`);
-    socket.join(roomId)
-    socket.broadcast.to(roomId).emit('user-toggle-audio', userId)
-  })
-
-  socket.on('user-toggle-video',(userId, roomId)=>{
-    console.log(`a user ${userId} toggle video`);
-    socket.join(roomId)
-    socket.broadcast.to(roomId).emit('user-toggle-video', userId)
-  })
+  // socket.on('user-toggle-video',(userId, roomId)=>{
+  //   console.log(`a user ${userId} toggle video`);
+  //   socket.join(roomId)
+  //   socket.broadcast.to(roomId).emit('user-toggle-video', userId)
+  // })
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
