@@ -11,46 +11,47 @@ const io = new Server(server, {
   },
 });
 
-const userSocketMap: Record<string, string> = {};
+const chatUserSocketMap: Record<string, string> = {}; 
+const videoUserSocketMap: Record<string, string> = {};
 
 export function getReceiverSocketId(userId: string): string | undefined {
-  return userSocketMap[userId];
+  return chatUserSocketMap[userId];
 }
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
+  
+  socket.on("setup", (payload: { userId: string; appType: "chat" | "video" }) => {
+    const { userId, appType } = payload;
 
-  socket.on("setup", (userId: string) => {
-    userSocketMap[userId] = socket.id;
-    console.log(`UserId ${userId} is mapped to socketId ${socket.id}`);
+    if (appType === "chat") {
+      chatUserSocketMap[userId] = socket.id;
+      console.log(`[Chat] User ${userId} is mapped to socketId ${socket.id}`);
+    } else if (appType === "video") {
+      videoUserSocketMap[userId] = socket.id;
+      console.log(`[Video] User ${userId} is mapped to socketId ${socket.id}`);
+      console.log('videomap',videoUserSocketMap);
+      
+    }
   });
-
-  socket.on("join-room", (roomId, userId) => {
-    console.log(`a new user ${userId} joined room ${roomId}`);
-    socket.join(roomId)
-    socket.broadcast.to(roomId).emit('user-connected', userId)
-  })
-// =========IGNORE===========
-  // socket.on('user-toggle-audio',(userId, roomId)=>{
-  //   console.log(`a user ${userId} toggle audio`);
-  //   socket.join(roomId)
-  //   socket.broadcast.to(roomId).emit('user-toggle-audio', userId)
-  // })
-
-  // socket.on('user-toggle-video',(userId, roomId)=>{
-  //   console.log(`a user ${userId} toggle video`);
-  //   socket.join(roomId)
-  //   socket.broadcast.to(roomId).emit('user-toggle-video', userId)
-  // })
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
 
-    const userId = Object.keys(userSocketMap).find(
-      (key) => userSocketMap[key] === socket.id
+    const chatUserId = Object.keys(chatUserSocketMap).find(
+      (key) => chatUserSocketMap[key] === socket.id
     );
-    if (userId) {
-      delete userSocketMap[userId];
+    if (chatUserId) {
+      delete chatUserSocketMap[chatUserId];
+      console.log(`[Chat] Removed user ${chatUserId} from chat map`);
+    }
+
+    const videoUserId = Object.keys(videoUserSocketMap).find(
+      (key) => videoUserSocketMap[key] === socket.id
+    );
+    if (videoUserId) {
+      delete videoUserSocketMap[videoUserId];
+      console.log(`[Video] Removed user ${videoUserId} from video map`);
     }
   });
 });
