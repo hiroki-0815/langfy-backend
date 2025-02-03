@@ -14,7 +14,6 @@ const io = new Server(server, {
 const userSocketMap: Record<string, string> = {};
 const allKnownOffers: Record<string, any> = {};
 
-
 export function getReceiverSocketId(userId: string): string | undefined {
   return userSocketMap[userId];
 }
@@ -26,7 +25,6 @@ io.on("connection", (socket) => {
     userSocketMap[userId] = socket.id;
     console.log(`UserId ${userId} is mapped to socketId ${socket.id}`);
   });
-
 
   socket.on("newAnswer", ({ answer, callerId, offerId }) => {
     console.log("📩 Received newAnswer:", answer);
@@ -53,7 +51,6 @@ io.on("connection", (socket) => {
     }
   });
   
-
   socket.on("newOffer", (offer, OfferInfo) => {
     const { offerId, receiverId,videoCallUrl,callerId } = OfferInfo;
 
@@ -75,8 +72,7 @@ io.on("connection", (socket) => {
       socketId: socket.id,
     };
     console.log("New offer saved:", allKnownOffers[offerId], offerId);
-
-
+    
     const receiverSocketId = userSocketMap[receiverId];
     if (receiverSocketId) {
       io.to(receiverSocketId).emit(
