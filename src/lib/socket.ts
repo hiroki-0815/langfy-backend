@@ -12,6 +12,7 @@ const io = new Server(server, {
 });
 
 const userSocketMap: Record<string, string> = {};
+const allKnownOffers: Record<string, any> = {};
 
 export function getReceiverSocketId(userId: string): string | undefined {
   return userSocketMap[userId];
@@ -25,23 +26,102 @@ io.on("connection", (socket) => {
     console.log(`UserId ${userId} is mapped to socketId ${socket.id}`);
   });
 
-  socket.on("join-room", (roomId, userId) => {
-    console.log(`a new user ${userId} joined room ${roomId}`);
-    socket.join(roomId)
-    socket.broadcast.to(roomId).emit('user-connected', userId)
-  })
-// =========IGNORE===========
-  // socket.on('user-toggle-audio',(userId, roomId)=>{
-  //   console.log(`a user ${userId} toggle audio`);
-  //   socket.join(roomId)
-  //   socket.broadcast.to(roomId).emit('user-toggle-audio', userId)
-  // })
+  socket.on("newAnswer", ({ answer, callerId, offerId }) => {
+    console.log("📩 Received newAnswer:", answer);
+  
+    if (!callerId) {
+      console.error("❌ Missing callerId in newAnswer event.");
+      return;
+    }
+  
+    const callerSocketId = userSocketMap[callerId];
+  
+    if (callerSocketId) {
+      io.to(callerSocketId).emit("answerToClient", { answer, offerId });
+      console.log(`📞 Sent answerToClient to caller ${callerId} at socket ${callerSocketId}`);
+    } else {
+      console.warn(`⚠️ Caller ${callerId} not found in userSocketMap.`);
+    }
+  
+    if (allKnownOffers[offerId]) {
+      allKnownOffers[offerId].answer = answer; 
+      console.log('SUCCESS !! knownOffer',allKnownOffers[offerId]);
+    } else {
+      console.warn(`⚠️ No matching offer found for offerId: ${offerId}`);
+    }
+  });
+  
+  socket.on("newOffer", (offer, OfferInfo) => {
+    const { offerId, receiverId,videoCallUrl,callerId } = OfferInfo;
 
-  // socket.on('user-toggle-video',(userId, roomId)=>{
-  //   console.log(`a user ${userId} toggle video`);
-  //   socket.join(roomId)
-  //   socket.broadcast.to(roomId).emit('user-toggle-video', userId)
-  // })
+    if (!offerId || !receiverId) {
+      console.error("OfferInfo must include both offerId and receiverId");
+      return;
+    }   
+      console.log('from offer',offerId);
+  
+    allKnownOffers[offerId] = {
+      callerId,
+      offerId,
+      receiverId,
+      offer,
+      offerIceCandidates: [],
+      answer: null,
+      answerIceCandidates: [],
+      videoCallUrl,
+      socketId: socket.id,
+    };
+    console.log("New offer saved:", allKnownOffers[offerId], offerId);
+    
+    const receiverSocketId = userSocketMap[receiverId];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit(
+        "newOfferAwaiting",
+        allKnownOffers[offerId]
+      );
+      console.log(
+        `Sent newOfferAwaiting to user ${receiverId} at socket ${receiverSocketId}`
+      );
+    } 
+  })
+
+  socket.on('getIce',(offerId, who, ackFunk)=>{
+    const offer = allKnownOffers[offerId]
+    let IceCandidates =[]
+    if(who === "caller"){
+      IceCandidates = offer.offerIceCandidates
+    } else if(who === "callee"){
+      IceCandidates = offer.answerIceCandidates
+    }
+    ackFunk(IceCandidates)
+  })
+
+  socket.on('iceServer',({iceC, offerId, who})=>{
+    console.log(who);
+    console.log(iceC);
+    console.log(offerId);
+
+    const offerToUpdate = allKnownOffers[offerId]
+    if(offerToUpdate){
+      if(who === "caller"){
+        offerToUpdate.offerIceCandidates.push(iceC)
+        console.log('==================',offerToUpdate);
+        const calleeId = allKnownOffers[offerId].receiverId
+        const calleeSocketId = userSocketMap[calleeId];
+        if(calleeSocketId){
+          socket.to(calleeSocketId).emit('iceToClient', iceC);
+        }
+      }else if(who === "callee"){
+        offerToUpdate.answerIceCandidates.push(iceC)
+        console.log('++++++++++++++++++',offerToUpdate);
+        const callerId = allKnownOffers[offerId].callerId
+        const callerSocketId = userSocketMap[callerId];
+        if(callerSocketId){
+          socket.to(callerSocketId).emit('iceToClient', iceC);
+        }
+      }
+    }
+  })
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
