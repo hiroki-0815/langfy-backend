@@ -210,6 +210,26 @@ io.on("connection", (socket) => {
     }
   });  
 
+  socket.on("toggleTimerVisibility", (data: { 
+    isTimerVisible: boolean; 
+    callerId: string; 
+    receiverId: string;
+  }) => {
+    console.log("Received toggleTimerVisibility from", socket.id, ":", data);
+    const { callerId, receiverId } = data;
+    const callerSocketId = userSocketMap[callerId];
+    const receiverSocketId = userSocketMap[receiverId];
+
+    if (callerSocketId) {
+      io.to(callerSocketId).emit("toggleTimerVisibility", data);
+      console.log(`Sent toggleTimerVisibility to caller ${callerId} at socket ${callerSocketId}`);
+    }
+    if (receiverSocketId && receiverSocketId !== callerSocketId) {
+      io.to(receiverSocketId).emit("toggleTimerVisibility", data);
+      console.log(`Sent toggleTimerVisibility to receiver ${receiverId} at socket ${receiverSocketId}`);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
 
