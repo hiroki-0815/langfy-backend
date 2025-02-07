@@ -123,110 +123,58 @@ io.on("connection", (socket) => {
     }
   })
 
+  socket.on("timerControlUpdate", (data: { 
+    isRunning: boolean; 
+    isPaused: boolean; 
+    timeLeft: number; 
+    targetId: string; 
+    role: string;
+  }) => {
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("timerControlUpdate", data);
+      console.log(`Sent timerControlUpdate to target ${targetId} at socket ${targetSocketId}`);
+    }
+  });
+
   socket.on("languageUpdate", (data: { 
     language: string; 
     languageType: "first" | "second"; 
-    callerId: string; 
-    receiverId: string;
+    targetId: string; 
+    role: string;
   }) => {
-    console.log(`Received languageUpdate from ${socket.id}:`, data);
-    const { callerId, receiverId } = data;
-
-    const callerSocketId = userSocketMap[callerId];
-    const receiverSocketId = userSocketMap[receiverId];
-
-    if (callerSocketId) {
-      io.to(callerSocketId).emit("languageUpdate", data);
-      console.log(`Sent languageUpdate to caller ${callerId} at socket ${callerSocketId}`);
-    }
-    if (receiverSocketId && receiverSocketId !== callerSocketId) {
-      io.to(receiverSocketId).emit("languageUpdate", data);
-      console.log(`Sent languageUpdate to receiver ${receiverId} at socket ${receiverSocketId}`);
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("languageUpdate", data);
+      console.log(`Sent languageUpdate to target ${targetId} at socket ${targetSocketId}`);
     }
   });
 
   socket.on("durationUpdate", (data: { 
     selectedDuration: number; 
-    callerId: string; 
-    receiverId: string;
+    targetId: string; 
+    role: string;
   }) => {
-    console.log(`Received durationUpdate from ${socket.id}:`, data);
-    const { callerId, receiverId } = data;
-
-    const callerSocketId = userSocketMap[callerId];
-    const receiverSocketId = userSocketMap[receiverId];
-
-    if (callerSocketId) {
-      io.to(callerSocketId).emit("durationUpdate", data);
-      console.log(`Sent durationUpdate to caller ${callerId} at socket ${callerSocketId}`);
-    }
-    if (receiverSocketId && receiverSocketId !== callerSocketId) {
-      io.to(receiverSocketId).emit("durationUpdate", data);
-      console.log(`Sent durationUpdate to receiver ${receiverId} at socket ${receiverSocketId}`);
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("durationUpdate", data);
+      console.log(`Sent durationUpdate to target ${targetId} at socket ${targetSocketId}`);
     }
   });
 
   socket.on("setsUpdate", (data: { 
     selectedSets: number; 
-    callerId: string; 
-    receiverId: string;
+    targetId: string; 
+    role: string;
   }) => {
-    console.log(`Received setsUpdate from ${socket.id}:`, data);
-    const { callerId, receiverId } = data;
-
-    const callerSocketId = userSocketMap[callerId];
-    const receiverSocketId = userSocketMap[receiverId];
-
-    if (callerSocketId) {
-      io.to(callerSocketId).emit("setsUpdate", data);
-      console.log(`Sent setsUpdate to caller ${callerId} at socket ${callerSocketId}`);
-    }
-    if (receiverSocketId && receiverSocketId !== callerSocketId) {
-      io.to(receiverSocketId).emit("setsUpdate", data);
-      console.log(`Sent setsUpdate to receiver ${receiverId} at socket ${receiverSocketId}`);
-    }
-  });
-
-  socket.on("timerControlUpdate", (data: { 
-    isRunning: boolean; 
-    isPaused: boolean; 
-    timeLeft: number; 
-    callerId: string; 
-    receiverId: string;
-  }) => {
-    console.log(`Received timerControlUpdate from ${socket.id}:`, data);
-    const { callerId, receiverId } = data;
-  
-    const callerSocketId = userSocketMap[callerId];
-    const receiverSocketId = userSocketMap[receiverId];
-  
-    if (callerSocketId) {
-      io.to(callerSocketId).emit("timerControlUpdate", data);
-      console.log(`Sent timerControlUpdate to caller ${callerId} at socket ${callerSocketId}`);
-    }
-    if (receiverSocketId && receiverSocketId !== callerSocketId) {
-      io.to(receiverSocketId).emit("timerControlUpdate", data);
-      console.log(`Sent timerControlUpdate to receiver ${receiverId} at socket ${receiverSocketId}`);
-    }
-  });  
-
-  socket.on("toggleTimerVisibility", (data: { 
-    isTimerVisible: boolean; 
-    callerId: string; 
-    receiverId: string;
-  }) => {
-    console.log("Received toggleTimerVisibility from", socket.id, ":", data);
-    const { callerId, receiverId } = data;
-    const callerSocketId = userSocketMap[callerId];
-    const receiverSocketId = userSocketMap[receiverId];
-
-    if (callerSocketId) {
-      io.to(callerSocketId).emit("toggleTimerVisibility", data);
-      console.log(`Sent toggleTimerVisibility to caller ${callerId} at socket ${callerSocketId}`);
-    }
-    if (receiverSocketId && receiverSocketId !== callerSocketId) {
-      io.to(receiverSocketId).emit("toggleTimerVisibility", data);
-      console.log(`Sent toggleTimerVisibility to receiver ${receiverId} at socket ${receiverSocketId}`);
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("setsUpdate", data);
+      console.log(`Sent setsUpdate to target ${targetId} at socket ${targetSocketId}`);
     }
   });
 
