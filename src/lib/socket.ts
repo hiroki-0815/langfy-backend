@@ -123,6 +123,61 @@ io.on("connection", (socket) => {
     }
   })
 
+  socket.on("timerControlUpdate", (data: { 
+    isRunning: boolean; 
+    isPaused: boolean; 
+    timeLeft: number; 
+    targetId: string; 
+    role: string;
+  }) => {
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("timerControlUpdate", data);
+      console.log(`Sent timerControlUpdate to target ${targetId} at socket ${targetSocketId}`);
+    }
+  });
+
+  socket.on("languageUpdate", (data: { 
+    language: string; 
+    languageType: "first" | "second"; 
+    targetId: string; 
+    role: string;
+  }) => {
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("languageUpdate", data);
+      console.log(`Sent languageUpdate to target ${targetId} at socket ${targetSocketId}`);
+    }
+  });
+
+  socket.on("durationUpdate", (data: { 
+    selectedDuration: number; 
+    targetId: string; 
+    role: string;
+  }) => {
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("durationUpdate", data);
+      console.log(`Sent durationUpdate to target ${targetId} at socket ${targetSocketId}`);
+    }
+  });
+
+  socket.on("setsUpdate", (data: { 
+    selectedSets: number; 
+    targetId: string; 
+    role: string;
+  }) => {
+    const { targetId } = data;
+    const targetSocketId = userSocketMap[targetId];
+    if (targetSocketId) {
+      io.to(targetSocketId).emit("setsUpdate", data);
+      console.log(`Sent setsUpdate to target ${targetId} at socket ${targetSocketId}`);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
 
