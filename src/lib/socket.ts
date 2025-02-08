@@ -178,6 +178,12 @@ io.on("connection", (socket) => {
     }
   });
 
+socket.on("topicPicked", (topic: string) => {
+  io.emit("topicPicked", topic);
+  console.log(`Broadcasted picked topic: ${topic}`);
+});
+
+
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
 
