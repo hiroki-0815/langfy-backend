@@ -73,4 +73,3 @@ export const validateMyUserRequest = [
     .withMessage("Self introduction must be a string"),
   handleValidationErrors,
 ];
-

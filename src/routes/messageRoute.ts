@@ -15,7 +15,6 @@ const upload = multer({
 
 router.get('/users',jwtCheck,jwtParse, getChatUser)
 router.get('/:id',jwtCheck,jwtParse, getMessages)
-
 router.post(
 "/send/:id",
 upload.single("imageFile"),
