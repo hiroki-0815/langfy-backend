@@ -5,6 +5,8 @@ import cloudinary from "cloudinary";
 export const getCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     const currentUser = await User.findOne({ _id: req.userId });
+    console.log("User found:", currentUser);
+    
     if (!currentUser) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -59,7 +61,6 @@ export const updateCurrentUser: RequestHandler = async (req: Request, res: Respo
       const base64Image = Buffer.from(image.buffer).toString("base64");
       const dataURI = `data:${image.mimetype};base64,${base64Image}`;
 
-      // Add Cloudinary upload with logging
       try {
         uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
         console.log("Cloudinary upload successful:", uploadResponse.url);

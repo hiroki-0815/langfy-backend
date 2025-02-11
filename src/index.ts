@@ -10,6 +10,7 @@ import { app, server } from "./lib/socket";
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/my/user", myUserRoute);
 app.use("/api/users", allUsersRoute);
@@ -34,4 +35,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
+
+export { app, server, startServer };
