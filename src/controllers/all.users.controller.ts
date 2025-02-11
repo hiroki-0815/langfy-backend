@@ -38,6 +38,10 @@ export const getAllUsers: RequestHandler = async (
       if (ageMax) query.age.$lte = parseInt(ageMax as string);
     }
 
+    if (req.userId) {
+      query._id = { $ne: req.userId };
+    }
+
     const users = await User.find(query)
       .sort({ name: 1 })
       .skip(skip)
