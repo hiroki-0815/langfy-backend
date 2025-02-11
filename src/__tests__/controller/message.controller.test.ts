@@ -88,7 +88,6 @@ describe("getChatUser", () => {
 
     (User.findOne as jest.Mock).mockResolvedValue(currentUser);
 
-    // Simulate messages with populated senderId and receiverId
     const message1 = {
       senderId: { _id: "456", toString: () => "456" },
       receiverId: { _id: "123", toString: () => "123" },
@@ -118,12 +117,10 @@ describe("getChatUser", () => {
     expect(res.json).toHaveBeenCalledWith(chatUsers);
   });
 
-  // --- New Test to Cover Lines 49-51 (Error Handling) ---
   it("should return 500 when an error occurs in getChatUser", async () => {
     const req = { userId: "123", query: {} } as unknown as Request;
     const res = mockResponse();
 
-    // Force an error in User.findOne to trigger the catch block
     (User.findOne as jest.Mock).mockRejectedValue(new Error("Test error"));
 
     await getChatUser(req, res, dummyNext);
@@ -241,7 +238,6 @@ describe("sendMessages", () => {
     } as unknown as Request;
     const res = mockResponse();
 
-    // Force the Message constructor to throw an error
     (Message as unknown as jest.Mock).mockImplementation(() => {
       throw new Error("Test error");
     });
