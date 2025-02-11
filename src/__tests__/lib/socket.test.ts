@@ -1,11 +1,8 @@
 import { AddressInfo } from "net";
-// Import your server-side Socket.IO instance, HTTP server, and helper.
 import { io as serverIo, server, getReceiverSocketId } from "../../lib/socket";
-// Import the Socket.IO client as a default import and its type.
 import clientIo from "socket.io-client";
 import type { Socket } from "socket.io-client";
 
-// Increase Jest timeout in case some events are slow.
 jest.setTimeout(10000);
 
 describe("Socket.IO Server", () => {
@@ -35,7 +32,6 @@ describe("Socket.IO Server", () => {
     }
   });
 
-  // --- Normal Behavior Tests ---
 
   test('should map userId to socketId on "setup" event', (done) => {
     clientSocket1 = clientIo(url, { transports: ["websocket"] });
@@ -60,11 +56,9 @@ describe("Socket.IO Server", () => {
   });
 
   test('should handle "newOffer" event and send "newOfferAwaiting" to the receiver', (done) => {
-    // clientSocket1: caller, clientSocket2: receiver
     clientSocket1 = clientIo(url, { transports: ["websocket"] });
     clientSocket2 = clientIo(url, { transports: ["websocket"] });
 
-    // Wait until both clients are connected.
     Promise.all([
       new Promise<void>((resolve) => clientSocket1.once("connect", resolve)),
       new Promise<void>((resolve) => clientSocket2.once("connect", resolve))
@@ -102,7 +96,6 @@ describe("Socket.IO Server", () => {
       clientSocket1.emit("setup", "callerUser2");
       clientSocket2.emit("setup", "receiverUser2");
 
-      // Simulate an offer from callerUser2.
       const offerData = { type: "offer", sdp: "dummy-sdp" };
       const offerInfo = {
         offerId: "offer456",
@@ -112,7 +105,6 @@ describe("Socket.IO Server", () => {
       };
       clientSocket1.emit("newOffer", offerData, offerInfo);
 
-      // Caller listens for the answer.
       clientSocket1.on("answerToClient", (data: any) => {
         expect(data.answer).toBe("dummy-answer");
         expect(data.offerId).toBe("offer456");
@@ -363,13 +355,11 @@ describe("Socket.IO Server", () => {
     }, 150);
   });
 
-  // --- Edge Case Tests to Cover Unreached Lines ---
 
   test('should log error if newAnswer is emitted without callerId', (done) => {
     const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     clientSocket1 = clientIo(url, { transports: ["websocket"] });
     clientSocket1.on("connect", () => {
-      // Emit newAnswer without a callerId.
       clientSocket1.emit("newAnswer", { answer: "dummy-answer", offerId: "offer-missing-caller" });
       setTimeout(() => {
         expect(errorSpy).toHaveBeenCalledWith("❌ Missing callerId in newAnswer event.");
@@ -383,7 +373,6 @@ describe("Socket.IO Server", () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
     clientSocket1 = clientIo(url, { transports: ["websocket"] });
     clientSocket1.on("connect", () => {
-      // Do not call setup for the given callerId.
       clientSocket1.emit("newAnswer", { answer: "dummy-answer", callerId: "nonexistentCaller", offerId: "offer-nonexistent" });
       setTimeout(() => {
         expect(warnSpy).toHaveBeenCalledWith("⚠️ Caller nonexistentCaller not found in userSocketMap.");
@@ -399,7 +388,6 @@ describe("Socket.IO Server", () => {
     clientSocket1 = clientIo(url, { transports: ["websocket"] });
     clientSocket1.on("connect", () => {
       const offerData = { type: "offer", sdp: "dummy-sdp" };
-      // OfferInfo missing offerId.
       const offerInfo = { receiverId: "receiverUser", videoCallUrl: "http://dummy.url", callerId: "callerUser" };
       clientSocket1.emit("newOffer", offerData, offerInfo);
       setTimeout(() => {
@@ -430,7 +418,6 @@ describe("Socket.IO Server", () => {
       clientSocket1.emit("newOffer", offerData, offerInfo);
 
       setTimeout(() => {
-        // Receiver emits an ICE candidate for "callee".
         clientSocket2.emit("iceServer", {
           iceC: "iceCandidate-callee-test",
           offerId: "offer910",
