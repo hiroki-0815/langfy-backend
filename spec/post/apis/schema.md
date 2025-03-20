@@ -1,16 +1,33 @@
-flowchart TD
-subgraph Posts
-A1[GET /posts<br/><em>Retrieve all posts</em>]
-A2[GET /posts/:postId<br/><em>Retrieve a single post</em>]
-A3[POST /posts<br/><em>Create a new post</em>]
-A4[POST /posts/:postId/like<br/><em>Like a post</em>]
-A5[POST /posts/:postId/unlike<br/><em>Unlike a post</em>]
-A6[DELETE /posts/:postId<br/><em>Delete a post</em>]
-end
-
-    subgraph Comments
-      B1[GET /posts/:postId/comments<br/><em>Retrieve comments for a post</em>]
-      B2[POST /posts/:postId/comments<br/><em>Create a comment</em>]
-      B3[PUT /comments/:commentId<br/><em>Update a comment</em>]
-      B4[DELETE /comments/:commentId<br/><em>Delete a comment</em>]
-    end
+mindmap
+root((Post Handler))
+Get_All_Posts
+Path: "[GET] /posts"
+Headers: - Content-Type: "application/json" - Accept-Language: "en" - Authorization: "Bearer {access_token}"
+Response: - "200: Array of posts" - "400: Error message"
+Get_Single_Post
+Path: "[GET] /posts/:postId"
+Headers: - Content-Type: "application/json" - Accept-Language: "en" - Authorization: "Bearer {access_token}"
+Params: - postId: "string (ID of the post)"
+Response: - "200: Post object" - "404: Post not found"
+Create_Post
+Path: "[POST] /posts"
+Headers: - Content-Type: "application/json" - Accept-Language: "en" - Authorization: "Bearer {access_token}"
+Body: - content: "string (post content)"
+Response: - "201: Created post object" - "400: Error message"
+Like_Post
+Path: "[POST] /posts/:postId/like"
+Headers: - Content-Type: "application/json" - Accept-Language: "en" - Authorization: "Bearer {access_token}"
+Params: - postId: "string (ID of the post)"
+Note: "userId typically derived from token"
+Response: - "200: Updated post object" - "400: Post not found or already liked"
+Unlike_Post
+Path: "[POST] /posts/:postId/unlike"
+Headers: - Content-Type: "application/json" - Accept-Language: "en" - Authorization: "Bearer {access_token}"
+Params: - postId: "string (ID of the post)"
+Note: "userId typically derived from token"
+Response: - "200: Updated post object" - "400: Post not found or user hasn't liked it"
+Delete_Post
+Path: "[DELETE] /posts/:postId"
+Headers: - Content-Type: "application/json" - Accept-Language: "en" - Authorization: "Bearer {access_token}"
+Params: - postId: "string (ID of the post)"
+Response: - "200: Post deleted successfully" - "403: Forbidden (not owner or admin)" - "404: Post not found"
