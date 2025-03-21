@@ -7,16 +7,12 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
   try {
     const { page = 1, limit = 10 } = req.query;
     const userId = req.userId; 
-    // const { userId } = req.body;
-
-
 
     if (!userId) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    // Find the user making the request
     const user = await User.findById(userId).select("learningLanguage nativeLanguage");
     if (!user) {
       res.status(404).json({ error: "User not found" });
@@ -38,20 +34,22 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
       .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit))
-      .populate<{ userId: { _id: string; nativeLanguage: string; learningLanguage: string } }>(
+      .populate<{ userId: { _id: string; name: string; nativeLanguage: string; learningLanguage: string; imageUrl: string } }>(
         "userId",
-        "nativeLanguage learningLanguage"
+        "name nativeLanguage learningLanguage imageUrl"
       );
 
-      const formattedPosts = posts.map((post) => ({
-        id: post._id.toString(),
-        content: post.content,
-        authorId: post.userId._id.toString(),
-        nativeLanguage: post.userId.nativeLanguage, 
-        learningLanguage: post.userId.learningLanguage, 
-        likesCount: post.likes.length,
-        createdAt: post.createdAt,
-      }));
+    const formattedPosts = posts.map((post) => ({
+      id: post._id.toString(),
+      content: post.content,
+      authorId: post.userId._id.toString(),
+      name: post.userId.name,
+      nativeLanguage: post.userId.nativeLanguage,
+      learningLanguage: post.userId.learningLanguage,
+      imageUrl: post.userId.imageUrl,
+      likesCount: post.likes.length,
+      createdAt: post.createdAt,
+    }));
 
     res.status(200).json(formattedPosts);
   } catch (error) {
@@ -60,11 +58,55 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+export const getSelfPosts: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const filter = { userId };
+
+    const posts = await Post.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit))
+      .populate<{ userId: { _id: string; name: string; nativeLanguage: string; learningLanguage: string; imageUrl: string } }>(
+        "userId",
+        "name nativeLanguage learningLanguage imageUrl"
+      );
+
+    const formattedPosts = posts.map((post) => ({
+      id: post._id.toString(),
+      content: post.content,
+      authorId: post.userId._id.toString(),
+      name: post.userId.name,
+      nativeLanguage: post.userId.nativeLanguage,
+      learningLanguage: post.userId.learningLanguage,
+      imageUrl: post.userId.imageUrl,
+      likesCount: post.likes.length,
+      createdAt: post.createdAt,
+    }));
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error("Error fetching self posts:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 export const createPost: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     const { content,
-      //  userId 
       } = req.body;
     const userId = req.userId; 
 
@@ -103,7 +145,6 @@ export const likePost: RequestHandler = async (req: Request, res: Response): Pro
   try {
     const { postId,
       } = req.params;
-    // const { userId } = req.body;
     const userId = req.userId; 
 
     if (!userId) {
@@ -142,7 +183,6 @@ export const unlikePost = async (req: Request, res: Response): Promise<void> => 
   try {
     const { postId,
       } = req.params;
-    // const { userId } = req.body;
     const userId = req.userId; 
 
     if (!userId) {
@@ -182,7 +222,6 @@ export const unlikePost = async (req: Request, res: Response): Promise<void> => 
 export const deletePost = async (req: Request, res: Response): Promise<void> => {
   try {
     const { postId } = req.params;
-    // const { userId } = req.body;
     const userId = req.userId; 
 
     if (!userId) {
