@@ -49,6 +49,9 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
       imageUrl: post.userId.imageUrl,
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
     }));
 
     res.status(200).json(formattedPosts);
@@ -95,6 +98,9 @@ export const getSelfPosts: RequestHandler = async (req: Request, res: Response):
       imageUrl: post.userId.imageUrl,
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
     }));
 
     res.status(200).json(formattedPosts);
@@ -172,6 +178,9 @@ export const likePost: RequestHandler = async (req: Request, res: Response): Pro
       authorId: post.userId.toString(),
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
     });
   } catch (error) {
     console.error("Error liking post:", error);
@@ -212,6 +221,9 @@ export const unlikePost = async (req: Request, res: Response): Promise<void> => 
       authorId: post.userId.toString(),
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
     });
   } catch (error) {
     console.error("Error unliking post:", error);
