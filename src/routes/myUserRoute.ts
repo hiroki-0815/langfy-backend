@@ -1,5 +1,5 @@
 import express from "express"
-import { createCurrentUser, getCurrentUser, updateCurrentUser } from "../controllers/user.controller";
+import { createCurrentUser, getCurrentUser, getUserByQuery, updateCurrentUser } from "../controllers/user.controller";
 import { jwtCheck, jwtParse } from "../middleware/auth";
 import { validateMyUserRequest } from "../middleware/validation";
 import multer from "multer";
@@ -24,5 +24,6 @@ router.put(
   validateMyUserRequest,
   updateCurrentUser,
 );
+router.get('/byQuery', getUserByQuery);
 
 export default router
