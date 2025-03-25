@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import User from "../model/user";
 import cloudinary from "cloudinary";
+import mongoose from "mongoose";
 
 export const getCurrentUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,6 +17,34 @@ export const getCurrentUser: RequestHandler = async (req: Request, res: Response
     console.log(error);
     res.status(500).json({ message: "Something went wrong" });
     return;
+  }
+};
+
+export const getUserByQuery: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.query.userId;
+    if (!userId || typeof userId !== "string") {
+      res.status(400).json({ message: "User ID must be provided in query parameters." });
+      return;
+    }
+
+    // Optionally validate the userId format if you're using MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ message: "Invalid User ID format." });
+      return;
+    }
+
+    const user = await User.findOne({ _id: userId });
+    console.log("User found:", user);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
   }
 };
 
