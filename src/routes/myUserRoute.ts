@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 router.get('/',jwtCheck,jwtParse, getCurrentUser)
-router.post("/",jwtCheck, createCurrentUser)
+router.post("/",jwtCheck, jwtParse, createCurrentUser)
 router.put(
   "/",
   jwtCheck,
@@ -24,6 +24,7 @@ router.put(
   validateMyUserRequest,
   updateCurrentUser,
 );
-router.get('/byQuery', getUserByQuery);
+router.get('/byQuery', jwtCheck,
+jwtParse, getUserByQuery);
 
 export default router
