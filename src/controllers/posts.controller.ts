@@ -3,6 +3,7 @@ import Post from "../model/posts";
 import mongoose from "mongoose";
 import User from "../model/user";
 
+
 export const getAllPosts = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -37,8 +38,9 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
       .populate<{ userId: { _id: string; name: string; nativeLanguage: string; learningLanguage: string; imageUrl: string } }>(
         "userId",
         "name nativeLanguage learningLanguage imageUrl"
-      );
-
+      )
+      .populate("commentsCount");
+     
     const formattedPosts = posts.map((post) => ({
       id: post._id.toString(),
       content: post.content,
@@ -49,15 +51,19 @@ export const getAllPosts = async (req: Request, res: Response): Promise<void> =>
       imageUrl: post.userId.imageUrl,
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
+      commentsCount: post.commentsCount, 
     }));
-
-    res.status(200).json(formattedPosts);
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
+  
+      res.status(200).json(formattedPosts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+  
 export const getSelfPosts: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -83,7 +89,8 @@ export const getSelfPosts: RequestHandler = async (req: Request, res: Response):
       .populate<{ userId: { _id: string; name: string; nativeLanguage: string; learningLanguage: string; imageUrl: string } }>(
         "userId",
         "name nativeLanguage learningLanguage imageUrl"
-      );
+      )
+      .populate("commentsCount");
 
     const formattedPosts = posts.map((post) => ({
       id: post._id.toString(),
@@ -95,6 +102,10 @@ export const getSelfPosts: RequestHandler = async (req: Request, res: Response):
       imageUrl: post.userId.imageUrl,
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
+      commentsCount: post.commentsCount, 
     }));
 
     res.status(200).json(formattedPosts);
@@ -172,6 +183,9 @@ export const likePost: RequestHandler = async (req: Request, res: Response): Pro
       authorId: post.userId.toString(),
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
     });
   } catch (error) {
     console.error("Error liking post:", error);
@@ -212,6 +226,9 @@ export const unlikePost = async (req: Request, res: Response): Promise<void> => 
       authorId: post.userId.toString(),
       likesCount: post.likes.length,
       createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === req.userId
+      ),
     });
   } catch (error) {
     console.error("Error unliking post:", error);
@@ -250,6 +267,115 @@ export const deletePost = async (req: Request, res: Response): Promise<void> => 
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getPost: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { postId } = req.params;
+    const userId = req.userId;
+
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ error: "Invalid post ID" });
+      return;
+    }
+
+    const post = await Post.findById(postId)
+      .populate<{ userId: { _id: string; name: string; nativeLanguage: string; learningLanguage: string; imageUrl: string } }>(
+        "userId",
+        "name nativeLanguage learningLanguage imageUrl"
+      )
+      .populate("commentsCount");
+
+    if (!post) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    const formattedPost = {
+      id: post._id.toString(),
+      content: post.content,
+      authorId: post.userId._id.toString(),
+      name: post.userId.name,
+      nativeLanguage: post.userId.nativeLanguage,
+      learningLanguage: post.userId.learningLanguage,
+      imageUrl: post.userId.imageUrl,
+      likesCount: post.likes.length,
+      createdAt: post.createdAt,
+      isLikedByCurrentUser: post.likes.some(
+        (likeId) => likeId.toString() === userId
+      ),
+      commentsCount: post.commentsCount, 
+    };
+
+    res.status(200).json(formattedPost);
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getUserPosts: RequestHandler = async (req: Request, res: Response): Promise<void>  => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+     res.status(400).json({ error: "Missing userId parameter" });
+     return
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+     res.status(400).json({ error: "Invalid userId format" });
+     return
+    }
+
+    const { page = 1, limit = 10 } = req.query;
+
+    const user = await User.findById(userId);
+    if (!user) {
+     res.status(404).json({ error: "User not found" });
+     return
+    }
+
+    const posts = await Post.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit))
+      .populate<{ userId: { _id: string; name: string; nativeLanguage: string; learningLanguage: string; imageUrl: string } }>(
+        "userId",
+        "name nativeLanguage learningLanguage imageUrl"
+      )
+      .populate("commentsCount");
+
+    const formattedPosts = posts.map((post) => {
+      const currentUserId = req.userId; 
+      return {
+        id: post._id.toString(),
+        content: post.content,
+        authorId: post.userId._id.toString(),
+        name: post.userId.name,
+        nativeLanguage: post.userId.nativeLanguage,
+        learningLanguage: post.userId.learningLanguage,
+        imageUrl: post.userId.imageUrl,
+        likesCount: post.likes.length,
+        createdAt: post.createdAt,
+        isLikedByCurrentUser: currentUserId
+          ? post.likes.some((likeId) => likeId.toString() === currentUserId)
+          : false,
+        commentsCount: post.commentsCount,
+      };
+    });
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

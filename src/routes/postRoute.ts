@@ -1,5 +1,5 @@
 import express from "express"
-import { createPost, deletePost, getAllPosts, getSelfPosts, likePost, unlikePost, } from "../controllers/posts.controller";
+import { createPost, deletePost, getAllPosts, getPost, getSelfPosts, getUserPosts, likePost, unlikePost, } from "../controllers/posts.controller";
 import { jwtCheck, jwtParse } from "../middleware/auth";
 
 const router = express.Router();
@@ -27,5 +27,13 @@ deletePost)
 router.get('/self',
 jwtCheck,jwtParse,
 getSelfPosts)
+
+router.get('/:postId/',
+jwtCheck,jwtParse,
+getPost)
+
+router.get('/user/:userId/',
+jwtCheck,jwtParse,
+getUserPosts)
 
 export default router;
