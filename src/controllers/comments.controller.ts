@@ -1,4 +1,3 @@
-
 import { RequestHandler, Request, Response } from "express";
 import Comment from "../model/comments"; 
 import Post from "../model/posts";       
@@ -60,7 +59,6 @@ export const createComment: RequestHandler = async (req: Request, res: Response)
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 export const getCommentsForPost: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
