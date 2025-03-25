@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 router.get('/',jwtCheck,jwtParse, getCurrentUser)
-router.post("/",jwtCheck, jwtParse, createCurrentUser)
+router.post("/",jwtCheck, createCurrentUser)
 router.put(
   "/",
   jwtCheck,
